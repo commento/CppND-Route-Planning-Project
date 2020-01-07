@@ -105,6 +105,7 @@ void RoutePlanner::AStarSearch() {
     current_node = start_node;
   
     while(open_list.size() > 0)
+    //while(current_node != end_node)
     {
       AddNeighbors(current_node);
       current_node = NextNode();
