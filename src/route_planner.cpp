@@ -10,10 +10,8 @@ RoutePlanner::RoutePlanner(RouteModel &model, float start_x, float start_y, floa
 
     // TODO 2: Use the m_Model.FindClosestNode method to find the closest nodes to the starting and ending coordinates.
     // Store the nodes you find in the RoutePlanner's start_node and end_node attributes.
-    start_node = new RouteModel::Node();
-	end_node = new RouteModel::Node();
-    *start_node = m_Model.FindClosestNode(start_x, start_y);
-    *end_node = m_Model.FindClosestNode(end_x, end_y);
+    start_node = &m_Model.FindClosestNode(start_x, start_y);
+    end_node = &m_Model.FindClosestNode(end_x, end_y);
 }
 
 
@@ -37,7 +35,7 @@ float RoutePlanner::CalculateHValue(RouteModel::Node const *node) {
 void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
   current_node->FindNeighbors();
   //DBG
-  std::cout << "current_node: " << current_node << " current_node g+h: " << current_node->h_value+current_node->g_value << " current_node->neighbors size: " << current_node->neighbors.size() << "\n";
+  //std::cout << "current_node: " << current_node << " current_node g+h: " << current_node->h_value+current_node->g_value << " current_node->neighbors size: " << current_node->neighbors.size() << "\n";
   for (auto& neighbor : current_node->neighbors)
   {
     if(false == neighbor->visited)
@@ -62,7 +60,7 @@ void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
 
 RouteModel::Node *RoutePlanner::NextNode() {
   std::sort(open_list.begin(), open_list.end(), [](RouteModel::Node * n1, RouteModel::Node *n2)
-            { return n1->h_value + n1->g_value < n2->h_value + n2->g_value; });
+            { return n1->h_value + n1->g_value > n2->h_value + n2->g_value; });
   
   RouteModel::Node * resultPtr = open_list.back();
   open_list.pop_back();
@@ -106,6 +104,7 @@ std::vector<RouteModel::Node> RoutePlanner::ConstructFinalPath(RouteModel::Node 
 
 void RoutePlanner::AStarSearch() {
     RouteModel::Node *current_node = nullptr;
+    start_node->visited = true;
     open_list.push_back(start_node);
   
     while(open_list.size() > 0)
